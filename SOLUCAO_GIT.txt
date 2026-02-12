@@ -1,0 +1,99 @@
+# SOLUÇÃO: Git Não Instalado
+
+## Problema Identificado ❌
+
+Git não está instalado no seu computador. Por isso o `DEPLOY_AGORA.bat` não funcionou e suas alterações não foram enviadas ao Netlify.
+
+## Solução 1: Instalar Git (Recomendado) ✅
+
+### Passo 1: Baixar Git
+Acesse: **https://git-scm.com/download/win**
+
+### Passo 2: Instalar
+- Execute o instalador
+- **IMPORTANTE**: Marque a opção "Add Git to PATH"
+- Clique "Next" até o final
+
+### Passo 3: Reiniciar PowerShell/CMD
+Feche todas as janelas do terminal e abra novamente
+
+### Passo 4: Rodar Deploy
+```bash
+cd "c:\Users\Igor\Desktop\Sistema Concurso BB\bb85-system"
+git add .
+git commit -m "feat: corporate redesign + admin persistence + SEO blog"
+git push origin main
+```
+
+---
+
+## Solução 2: Upload Manual via GitHub Web (Alternativa)
+
+Se não quiser instalar Git agora:
+
+### Passo 1: Compactar Pasta
+1. Vá até: `c:\Users\Igor\Desktop\Sistema Concurso BB\bb85-system`
+2. **SELECIONE APENAS ESTES ARQUIVOS/PASTAS**:
+   - `app/`
+   - `components/`
+   - `prisma/`
+   - `netlify.toml`
+   - `package.json`
+   - `tsconfig.seed.json`
+3. Clique direito → **Enviar para** → **Pasta compactada**
+4. Nomeie: `bb85-update.zip`
+
+### Passo 2: Acessar GitHub
+1. Acesse: https://github.com
+2. Login na sua conta
+3. Vá no repositório: `bb85-sistema` (ou o nome que você deu)
+
+### Passo 3: Upload via Web
+1. Clique no botão **Add file** → **Upload files**
+2. Arraste o `bb85-update.zip`
+3. Ou clique **choose your files** e selecione
+
+### Passo 4: Commit
+- Message: `Corporate redesign + admin + SEO blog`
+- Clique **Commit changes**
+
+O Netlify vai detectar automaticamente e fazer o deploy!
+
+---
+
+## Solução 3: Netlify CLI (Para Usuários Avançados)
+
+```bash
+npm install -g netlify-cli
+netlify login
+netlify deploy --prod
+```
+
+---
+
+## Recomendação ⭐
+
+**Instale o Git** (Solução 1). É essencial para desenvolvimento web e vai facilitar muito seu trabalho futuro.
+
+Após instalar, rode o `DEPLOY_AGORA.bat` novamente.
+
+---
+
+## Verificar se Git Foi Instalado
+
+Abra PowerShell e digite:
+```bash
+git --version
+```
+
+Se aparecer algo como `git version 2.x.x`, está instalado! ✅
+
+---
+
+## Precisa de Ajuda?
+
+1. Instale Git: https://git-scm.com/download/win
+2. Reinicie o terminal
+3. Rode `DEPLOY_AGORA.bat` novamente
+
+Ou me avise qual solução prefere seguir!

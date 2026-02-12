@@ -1,0 +1,141 @@
+# DEPLOY MANUAL - BB85 SISTEMA
+Repositório: git@github.com:igorrosa30/bb85-sistema.git
+
+## IMPORTANTE: Git não está instalado
+Como Git não está no seu computador, vou te guiar no upload manual pelo GitHub.
+
+---
+
+## PASSO A PASSO (10 minutos)
+
+### 1. Preparar Arquivos
+
+Os seguintes arquivos/pastas FORAM MODIFICADOS e precisam ser enviados:
+
+**Pastas Inteiras:**
+- ✅ `app/` (landing page + blog redesenhados)
+- ✅ `components/` (navbar atualizada)
+- ✅ `prisma/` (seed do admin)
+
+**Arquivos Individuais:**
+- ✅ `netlify.toml` (config do build com seed)
+- ✅ `package.json` (seed script configurado)
+- ✅ `tsconfig.seed.json` (novo arquivo)
+
+---
+
+### 2. Acessar GitHub
+
+1. Abra: **https://github.com/igorrosa30/bb85-sistema**
+2. Faça login se necessário
+
+---
+
+### 3. Substituir Arquivos (Método Simples)
+
+#### Opção A: Upload Pasta por Pasta
+
+**Para a pasta `app/`:**
+1. No GitHub, clique na pasta `app/`
+2. Clique em **Add file** → **Upload files**
+3. Arraste TODO o conteúdo da pasta `app/` do seu computador
+4. Scroll para baixo, escreva: `Update app folder - corporate redesign`
+5. Clique **Commit changes**
+
+**Para a pasta `components/`:**
+1. Volte para a raiz do repositório
+2. Clique na pasta `components/`
+3. Clique em **Add file** → **Upload files**
+4. Arraste TODO o conteúdo da pasta `components/` do seu computador
+5. Escreva: `Update navbar - corporate white design`
+6. Clique **Commit changes**
+
+**Para a pasta `prisma/`:**
+1. Volte para a raiz
+2. Clique na pasta `prisma/`
+3. **Add file** → **Upload files**
+4. Arraste o arquivo `seed.ts`
+5. Escreva: `Add admin seed script`
+6. Commit
+
+**Para arquivos individuais:**
+1. Volte para a raiz
+2. **Add file** → **Upload files**
+3. Arraste:
+   - `netlify.toml`
+   - `package.json`
+   - `tsconfig.seed.json`
+4. Escreva: `Update build config for admin seed`
+5. Commit
+
+---
+
+#### Opção B: Upload Tudo de Uma Vez (Mais Rápido)
+
+1. **Delete** o repositório atual no GitHub (Settings → Delete)
+2. Crie um **novo** repositório com o mesmo nome: `bb85-sistema`
+3. Clique **uploading an existing file**
+4. Arraste TODA a pasta `bb85-system` (exceto `node_modules/` e `.next/`)
+5. Commit
+
+---
+
+### 4. Verificar Netlify
+
+Após o upload:
+1. Acesse: **https://app.netlify.com**
+2. O site vai fazer **deploy automático** (2-3 min)
+3. Verifique o log de build - deve mostrar:
+   - ✅ `prisma generate`
+   - ✅ `prisma db push`
+   - ✅ `prisma db seed` ← **Admin criado!**
+   - ✅ `npm run build`
+
+---
+
+### 5. Configurar Environment Variables
+
+No Netlify:
+1. **Site configuration** → **Environment variables**
+2. Adicione:
+
+**NEXTAUTH_SECRET**
+```
+bb85-secret-2026-sistema-aprovacao-banco-brasil-seguranca-maxima
+```
+
+**NEXTAUTH_URL**
+```
+https://concursobancodobrasil.netlify.app
+```
+
+3. Clique **Save**
+4. Vá em **Deploys** → **Trigger deploy** → **Deploy site**
+
+---
+
+### 6. Testar!
+
+Acesse: **https://concursobancodobrasil.netlify.app**
+
+- ✅ Landing page azul corporativo
+- ✅ Blog em `/blog`
+- ✅ Login: `admin@bb85.com` / `Admin@BB85!2026`
+
+---
+
+## 🚨 RECOMENDAÇÃO FUTURA
+
+Instale Git para facilitar próximos deploys:
+- Download: https://git-scm.com/download/win
+- Após instalar, usar `DEPLOY_AGORA.bat` será instantâneo
+
+---
+
+## ❓ Dúvida?
+
+Qual método prefere seguir?
+- **Opção A**: Upload pasta por pasta (mais trabalhoso, mas seguro)
+- **Opção B**: Deletar repo e fazer upload completo (mais rápido)
+
+Posso te guiar em qualquer um!

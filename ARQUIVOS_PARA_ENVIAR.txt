@@ -1,0 +1,70 @@
+# Lista de Arquivos Modificados - BB85 Deploy
+
+## ✅ PASTAS COMPLETAS (arraste TUDO dentro delas)
+
+### 📁 app/
+- page.tsx ← LANDING PAGE NOVA (azul corporativo)
+- blog/page.tsx ← BLOG SEO
+- globals.css ← CORES NOVAS
+- layout.tsx
+- (todas as outras pastas: dashboard/, login/, register/, etc.)
+
+### 📁 components/
+- PublicNavbar.tsx ← NAVBAR BRANCO NOVO
+
+### 📁 prisma/
+- seed.ts ← ADMIN AUTOMÁTICO ✨
+- schema.prisma (já existia)
+
+---
+
+## ✅ ARQUIVOS INDIVIDUAIS (arraste um por um)
+
+1. **netlify.toml** ← Build config com seed
+2. **package.json** ← Seed script configurado
+3. **tsconfig.seed.json** ← Config TypeScript seed (NOVO!)
+
+---
+
+## ❌ NÃO ENVIE ESSAS PASTAS
+
+- `node_modules/` (muito grande, reinstala automaticamente)
+- `.next/` (gerado automaticamente no build)
+- `.git/` (controle de versão)
+
+---
+
+## 📋 CHECKLIST RÁPIDO
+
+Antes de fazer upload, certifique-se:
+
+- [ ] Tenho a pasta `app/` completa
+- [ ] Tenho a pasta `components/` completa
+- [ ] Tenho a pasta `prisma/` com `seed.ts`
+- [ ] Tenho `netlify.toml` atualizado
+- [ ] Tenho `package.json` atualizado
+- [ ] Tenho `tsconfig.seed.json` (arquivo novo)
+
+---
+
+## 🎯 ONDE ENCONTRAR CADA ARQUIVO
+
+Todos estão em:
+```
+c:\Users\Igor\Desktop\Sistema Concurso BB\bb85-system\
+```
+
+---
+
+## ⚡ UPLOAD RÁPIDO (Recomendado)
+
+Se quiser fazer tudo de uma vez:
+
+1. Abra: https://github.com/igorrosa30/bb85-sistema
+2. Clique no botão verde **Code**
+3. Clique **Upload files**
+4. Arraste as 3 pastas + 3 arquivos listados acima
+5. Escreva: `Corporate redesign + admin seed + SEO blog`
+6. Commit!
+
+Pronto! Netlify vai detectar e fazer deploy automaticamente.
