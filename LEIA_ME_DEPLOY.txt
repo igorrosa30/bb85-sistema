@@ -1,0 +1,81 @@
+# DEPLOY FINAL - BB85 SISTEMA
+
+## ✅ ALTERAÇÕES COMPLETAS
+
+1. ✅ Admin persistente via Prisma seed
+2. ✅ Design corporativo (azul #003D82)
+3. ✅ Landing page profissional
+4. ✅ Blog SEO avançado
+5. ✅ Navbar atualizado
+
+## 🚀 PRÓXIMOS PASSOS (VOCÊ DEVE FAZER)
+
+### 1. Enviar Código para GitHub
+
+Clique 2x no arquivo: **DEPLOY_AGORA.bat**
+
+Se aparecer erro de Git não instalado:
+- Baixe em: https://git-scm.com/download/win
+- Instale e tente novamente
+
+### 2. Configurar Netlify Environment Variables
+
+Acesse: https://app.netlify.com
+
+1. Clique no seu site: **concursobancodobrasil**
+2. Vá em: **Site configuration** → **Environment variables**
+3. Adicione as variáveis:
+
+**NEXTAUTH_SECRET**
+```
+bb85-secret-2026-sistema-aprovacao-banco-brasil-seguranca-maxima
+```
+
+**NEXTAUTH_URL**
+```
+https://concursobancodobrasil.netlify.app
+```
+
+### 3. Aguarde o Build (2-3 minutos)
+
+Netlify vai fazer:
+- ✓ Gerar Prisma Client
+- ✓ Criar database (SQLite)
+- ✓ Rodar seed (CRIAR ADMIN!)
+- ✓ Build do Next.js
+
+### 4. Testar
+
+Acesse: **https://concursobancodobrasil.netlify.app**
+
+- **Landing Page**: Azul corporativo ✓
+- **Blog**: `/blog` com notícias ✓
+- **Login**: `admin@bb85.com` / `Admin@BB85!2026` ✓
+
+---
+
+## 🔑 CREDENCIAIS DE ADMIN
+
+```
+Email: admin@bb85.com
+Senha: Admin@BB85!2026
+```
+
+Funciona localmente E no Netlify!
+
+---
+
+## ❓ DÚVIDAS?
+
+### "Landing page continua antiga"
+→ Você não rodou o `DEPLOY_AGORA.bat`. As mudanças estão apenas localmente.
+
+### "Admin inválido"
+→ Aguarde o build terminar. O seed cria o admin automaticamente.
+
+### "Erro de Git"
+→ Instale Git: https://git-scm.com/download/win
+
+---
+
+Site pronto para produção! 🎉

@@ -1,23 +1,31 @@
 @import "tailwindcss";
 
 :root {
-  /* Brand Colors */
-  --bb-blue: #003399;
-  --bb-yellow: #f9dd16;
-  --bb-blue-neon: #2e7af9;
-  --bb-yellow-neon: #ffea20;
+  /* Corporate Brand Colors - Professional */
+  --bb-blue-primary: #003D82;
+  /* Azul corporativo principal */
+  --bb-blue-dark: #00214D;
+  /* Azul escuro (backgrounds) */
+  --bb-blue-light: #0055B8;
+  /* Azul claro (hover states) */
+  --bb-orange: #FF9500;
+  /* Laranja vibrante (CTAs) */
+  --bb-yellow: #FFC107;
+  /* Amarelo (accents) */
 
   /* Theme Colors */
-  --bg-primary: #050505;
-  --bg-secondary: #101010;
-  --text-primary: #ededed;
-  --text-secondary: #a1a1aa;
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F5F7FA;
+  --bg-dark: #00214D;
+  --text-primary: #1A1A1A;
+  --text-secondary: #6B7280;
+  --text-light: #FFFFFF;
 
-  /* Glassmorphism */
-  --glass-bg: rgba(255, 255, 255, 0.03);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-blur: 12px;
-  --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  /* Professional Shadows */
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 
   /* Spacing */
   --spacing-xs: 4px;
@@ -29,7 +37,8 @@
   /* Border Radius */
   --radius-sm: 4px;
   --radius-md: 8px;
-  --radius-lg: 16px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
 }
 
 * {
@@ -40,10 +49,6 @@
 
 body {
   background-color: var(--bg-primary);
-  background-image:
-    radial-gradient(circle at 50% 0%, rgba(46, 122, 249, 0.15), transparent 40%),
-    radial-gradient(circle at 80% 80%, rgba(255, 234, 32, 0.05), transparent 30%);
-  background-attachment: fixed;
   color: var(--text-primary);
   font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   line-height: 1.6;
@@ -83,39 +88,59 @@ button {
   text-shadow: 0 0 12px rgba(255, 234, 32, 0.6);
 }
 
-/* Button Styles */
+/* Corporate Button Styles */
 .btn-primary {
   display: inline-block;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, var(--bb-orange) 0%, #FF8C00 100%);
   color: white;
-  font-weight: 600;
+  font-weight: 700;
   text-align: center;
-  border-radius: 9999px;
+  border-radius: var(--radius-md);
   transition: all 0.3s ease;
   border: none;
   cursor: pointer;
+  box-shadow: var(--shadow-md);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 20px 40px -10px rgba(59, 130, 246, 0.5);
+  box-shadow: var(--shadow-xl);
+  background: linear-gradient(135deg, #FF8C00 0%, var(--bb-orange) 100%);
 }
 
 .btn-secondary {
   display: inline-block;
   background: transparent;
-  color: white;
-  font-weight: 600;
+  color: var(--bb-blue-primary);
+  font-weight: 700;
   text-align: center;
-  border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--bb-blue-primary);
   transition: all 0.3s ease;
   cursor: pointer;
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: var(--bb-blue-primary);
+  color: white;
+}
+
+.btn-outline {
+  display: inline-block;
+  background: white;
+  color: var(--bb-blue-primary);
+  font-weight: 600;
+  text-align: center;
+  border-radius: var(--radius-md);
+  border: 1px solid #E5E7EB;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-outline:hover {
+  border-color: var(--bb-blue-primary);
+  box-shadow: var(--shadow-md);
 }
 
 /* Animations */
