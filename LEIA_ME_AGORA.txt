@@ -1,0 +1,22 @@
+# COMO COLOCAR O SITE NO AR (MÉTODO FÁCIL)
+
+Eu criei um script automático para você. Siga estes 3 passos simples:
+
+## Passo 1: Instalar o Git (Se não tiver)
+O seu computador precisa do Git para enviar os arquivos.
+-   Baixe e instale: [https://git-scm.com/download/win](https://git-scm.com/download/win)
+-   *Dica*: Vá clicando em "Next" até terminar.
+
+## Passo 2: Preparar o GitHub
+1.  Vá no seu GitHub.
+2.  Crie um **New Repository** (Novo Repositório).
+3.  Dê um nome (ex: `bb85-sistema`).
+4.  Copie o link dele (aquele que termina em `.git`).
+
+## Passo 3: Rodar o Script Mágico
+1.  Na pasta do projeto, clique duas vezes no arquivo `DEPLOY_AGORA.bat`.
+2.  Ele vai configurar tudo sozinho.
+3.  Se ele pedir a URL, cole o link que você copiou no passo 2.
+
+---
+**IMPORTANTE**: Não arraste a pasta para o Netlify. Isso quebra o login. Use este método ou o Netlify CLI.

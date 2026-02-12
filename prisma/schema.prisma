@@ -1,0 +1,88 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Prova {
+  id          Int @id @default(autoincrement())
+  ano         Int
+  cargo       String
+  tipo_prova  String
+  versao      String
+  questoes    Questao[]
+}
+
+model Questao {
+  id              Int @id @default(autoincrement())
+  prova_id        Int
+  prova           Prova @relation(fields: [prova_id], references: [id])
+  numero_base     Int
+  materia         String
+  subtema         String?
+  peso_materia    Float
+  enunciado       String
+  imagem_url      String?
+  alternativa_A   String
+  alternativa_B   String
+  alternativa_C   String
+  alternativa_D   String
+  alternativa_E   String
+  alternativa_correta_base String
+  comentario      String?
+  comentario_detalhado String?
+  video_url       String?
+  mapeamentos     MapeamentoVersao[]
+  respostas       RespostaUsuario[]
+}
+
+model MapeamentoVersao {
+  id              Int @id @default(autoincrement())
+  questao_id      Int
+  questao         Questao @relation(fields: [questao_id], references: [id])
+  versao          String
+  mapeamento_json String // JSON storing alternative shuffles
+  gabarito_oficial String
+}
+
+model RespostaUsuario {
+  id              Int @id @default(autoincrement())
+  questao_id      Int
+  questao         Questao @relation(fields: [questao_id], references: [id])
+  versao_utilizada String
+  resposta_marcada String
+  correta_ou_errada Boolean
+  tempo_gasto     Int // seconds
+  data            DateTime @default(now())
+  userId          String?
+  user            User?    @relation(fields: [userId], references: [id])
+}
+
+model Simulado {
+  id              Int @id @default(autoincrement())
+  data            DateTime @default(now())
+  tempo_total     Int
+  percentual_geral Float
+  percentual_materia_json String
+  classificacao   String
+  userId          String?
+  user            User?    @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  password      String
+  role          String    @default("FREE") // FREE, PREMIUM, ADMIN
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  respostas     RespostaUsuario[]
+  simulados     Simulado[]
+}
