@@ -1,0 +1,32 @@
+# CONFIGURAÇÃO FINAL DO NETLIFY
+
+Para resolver os erros no site, você precisa configurar 2 variáveis no Netlify:
+
+## Passo 1: Acessar Configurações
+1. Acesse [app.netlify.com](https://app.netlify.com)
+2. Clique no site "concursobancodobrasil"
+3. Vá em **Site configuration** > **Environment variables**
+
+## Passo 2: Adicionar Variáveis
+
+Clique em **Add a variable** e adicione as seguintes (uma de cada vez):
+
+### Variável 1: NEXTAUTH_SECRET
+- **Key**: `NEXTAUTH_SECRET`
+- **Value**: `bb85-secret-2026-sistema-aprovacao-banco-brasil-seguranca-maxima`
+
+### Variável 2: NEXTAUTH_URL  
+- **Key**: `NEXTAUTH_URL`
+- **Value**: `https://concursobancodobrasil.netlify.app`
+
+## Passo 3: Fazer Deploy das Correções
+1. Clique 2x no arquivo `DEPLOY_AGORA.bat`
+2. Cole a URL do repositório (se pedir): `https://github.com/igorrosa30/bb85-sistema.git`
+3. Aguarde o envio
+4. O Netlify fará deploy automaticamente (2-3 min)
+
+## Resultado Esperado
+✅ Landing page com design profissional
+✅ Login/Registro funcionando
+✅ Dashboard acessível
+✅ Blog de notícias funcionando
