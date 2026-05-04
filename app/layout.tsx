@@ -24,9 +24,10 @@ export default function RootLayout({
       <body className={inter.variable}>
         <div className="flex h-screen overflow-hidden">
           <Sidebar />
-          <main className="flex-1 overflow-auto bg-gray-50">
+          <main className="flex-1 overflow-auto bg-[#050505] text-white">
             {children}
           </main>
+
         </div>
       </body>
     </html>

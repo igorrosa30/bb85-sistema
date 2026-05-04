@@ -12,63 +12,48 @@ export const dynamic = 'force-dynamic';
 
 
 export default async function SimuladosPage() {
-    const provas = await prisma.prova.findMany({
-        include: {
-            _count: {
-                select: { questoes: true }
-            }
-        },
-        orderBy: { ano: 'desc' }
-    });
+    let provas = [];
+    try {
+        provas = await prisma.prova.findMany({
+            orderBy: { ano: 'desc' }
+        });
+    } catch (error) {
+        console.error("Erro ao carregar provas:", error);
+    }
 
     return (
-        <div className="simulados-container">
-            <header className="page-header">
-                <h1>Simulados Disponíveis</h1>
-                <p className="subtitle">Escolha uma prova para treinar e testar seus conhecimentos</p>
+        <div className="min-h-screen bg-[#050505] p-6 md:p-10 max-w-7xl mx-auto text-white">
+            <header className="mb-12">
+                <h1 className="text-4xl font-black tracking-tighter uppercase">
+                    Centro de <span className="text-[#00a3ff]">Treinamento</span>
+                </h1>
+                <p className="text-[#a1a1aa] mt-2 font-medium italic">Simulados BB85-X Supreme</p>
             </header>
 
-            <div className="simulados-grid">
-                {provas.map((prova) => (
-                    <div key={prova.id} className="exam-card glass-panel p-6">
-                        <div className="exam-card-header">
-                            <div className="exam-icon-bg">
-                                <FileText className="text-neon-blue" size={24} />
+            {provas.length === 0 ? (
+                <div className="bg-white/5 border border-white/10 p-12 text-center rounded-2xl">
+                    <p className="text-[#a1a1aa]">Nenhuma prova encontrada.</p>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {provas.map((prova) => (
+                        <Link key={prova.id} href={`/simulado/${prova.id}`} className="block group">
+                            <div className="bg-[#0a0a0a] border border-white/10 p-8 rounded-2xl group-hover:border-[#00a3ff]/50 transition-all">
+                                <div className="text-[#00a3ff] mb-4">
+                                    <FileText size={32} />
+                                </div>
+                                <h3 className="text-xl font-black mb-1">{prova.cargo}</h3>
+                                <p className="text-xs font-bold text-[#a1a1aa] uppercase mb-4">{prova.tipo_prova} • {prova.ano}</p>
+                                <div className="flex items-center text-[#00a3ff] text-xs font-black uppercase">
+                                    Iniciar Combate <ArrowRight size={14} className="ml-2" />
+                                </div>
                             </div>
-                            <div className="exam-title-group">
-                                <h3>{prova.cargo} - {prova.tipo_prova}</h3>
-                                <span className="exam-ano text-neon-yellow">{prova.ano}</span>
-                            </div>
-                        </div>
-
-                        <p className="exam-desc mt-3 text-secondary">
-                            Prepare-se para o Banco do Brasil com este simulado completo da prova {prova.cargo} ({prova.versao}).
-                        </p>
-
-                        <div className="exam-stats-row mt-4">
-                            <div className="exam-stat">
-                                <CheckCircle size={16} className="text-secondary" />
-                                <span>{prova._count.questoes} Questões</span>
-                            </div>
-                            <div className="exam-stat">
-                                <Clock size={16} className="text-secondary" />
-                                <span>4h 30min</span>
-                            </div>
-                            <div className="exam-stat">
-                                <Calendar size={16} className="text-secondary" />
-                                <span>{prova.ano}</span>
-                            </div>
-                        </div>
-
-                        <div className="exam-footer mt-4">
-                            <Link href={`/simulado/${prova.id}`} className="btn-primary w-full flex-center gap-2">
-                                Iniciar Agora
-                                <ArrowRight size={18} />
-                            </Link>
-                        </div>
-                    </div>
-                ))}
-            </div>
+                        </Link>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }
+
+
