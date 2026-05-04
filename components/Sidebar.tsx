@@ -10,19 +10,26 @@ import {
     History,
     Target,
     ChevronRight,
-    PenTool
+    PenTool,
+    Zap,
+    Trophy,
+    Flame
 } from 'lucide-react';
+import { getUserProfile } from '@/app/actions';
 
 const Sidebar = () => {
     const pathname = usePathname();
+    const [profile, setProfile] = React.useState<any>(null);
 
-    const menuItems = [
-        { name: 'Dashboard', icon: LayoutDashboard, href: '/' },
-        { name: 'Simulados', icon: BookOpen, href: '/simulados' },
-        { name: 'Redação', icon: PenTool, href: '/redacao' },
-        { name: 'Performance', icon: TrendingUp, href: '/performance' },
-        { name: 'Ranking', icon: History, href: '/ranking' },
-    ];
+    React.useEffect(() => {
+        getUserProfile().then(setProfile);
+    }, [pathname]);
+
+    const xpNextLevel = profile ? Math.floor(100 * Math.pow(profile.level, 1.5)) : 100;
+    const xpProgress = profile ? (profile.xp / xpNextLevel) * 100 : 0;
+
+    const levelNames = ["Recruta", "Soldado", "Cabo", "Sargento", "Tenente", "Capitão", "Major", "Coronel", "General", "Supreme"];
+    const levelName = profile ? (levelNames[profile.level - 1] || "Lenda") : "Recruta";
 
     return (
         <aside className="w-64 bg-black/60 backdrop-blur-xl border-r border-white/10 flex flex-col h-screen sticky top-0">
@@ -35,8 +42,45 @@ const Sidebar = () => {
                 <p className="text-[10px] font-black text-secondary uppercase tracking-widest mt-1 opacity-60">Agente de Tecnologia</p>
             </div>
 
-            <nav className="flex-1 p-4 space-y-1 mt-4">
-                {menuItems.map((item) => {
+            {/* Gamification Stats */}
+            <div className="px-6 py-4 space-y-4">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-neon-yellow/20 flex items-center justify-center text-neon-yellow">
+                            <Flame size={18} fill="currentColor" />
+                        </div>
+                        <span className="text-xl font-black text-white">{profile?.streak || 1}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-neon-blue/20 flex items-center justify-center text-neon-blue">
+                            <Trophy size={18} />
+                        </div>
+                        <span className="text-sm font-black text-white">LVL {profile?.level || 1}</span>
+                    </div>
+                </div>
+
+                <div className="space-y-1">
+                    <div className="flex justify-between text-[10px] font-black uppercase text-secondary">
+                        <span>{levelName}</span>
+                        <span>{profile?.xp || 0} / {xpNextLevel} XP</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                        <div 
+                            className="h-full bg-gradient-to-r from-neon-blue to-cyan-400 transition-all duration-1000 shadow-[0_0_10px_rgba(0,163,255,0.5)]"
+                            style={{ width: `${xpProgress}%` }}
+                        ></div>
+                    </div>
+                </div>
+            </div>
+
+            <nav className="flex-1 p-4 space-y-1 mt-2">
+                {[
+                    { name: 'Dashboard', icon: LayoutDashboard, href: '/' },
+                    { name: 'Simulados', icon: BookOpen, href: '/simulados' },
+                    { name: 'Redação', icon: PenTool, href: '/redacao' },
+                    { name: 'Performance', icon: TrendingUp, href: '/performance' },
+                    { name: 'Ranking', icon: History, href: '/ranking' },
+                ].map((item) => {
                     const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
                     const Icon = item.icon;
 

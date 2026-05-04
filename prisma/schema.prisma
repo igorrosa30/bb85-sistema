@@ -83,16 +83,27 @@ model Simulado {
   respostas       RespostaUsuario[]
 }
 
+model UserProfile {
+  id              String   @id @default("unico")
+  xp              Int      @default(0)
+  level           Int      @default(1)
+  streak          Int      @default(0)
+  lastActivity    DateTime @default(now())
+  totalQuestoes   Int      @default(0)
+  totalAcertos    Int      @default(0)
+}
+
 model Redacao {
   id          String   @id @default(cuid())
   tema        String
   conteudo    String
   correcao    String?
   nota        Int?
-  status      String   @default("Rascunho") // Rascunho, Corrigida
+  status      String   @default("Rascunho")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
 
 
 model NotaRedacao {
