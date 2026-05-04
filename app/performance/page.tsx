@@ -22,10 +22,10 @@ export default async function PerformancePage() {
     const progresso85 = Math.min((media / 85) * 100, 100).toFixed(1);
     const needed = Math.max(85 - media, 0).toFixed(1);
 
-    // 3. Competitiveness Logic (São Luís)
-    // Assumption: São Luís requires consistently high scores due to competition.
-    // 82% is a safe "competitive" threshold for this analysis.
-    const isCompetitiveSaoLuis = media >= 82;
+    // 3. Competitiveness Logic (Microrregião 158 - TI)
+    // Assumption: TI position requires specialized knowledge and high performance.
+    // 80% is a competitive threshold for TI.
+    const isCompetitiveTI = media >= 80;
 
     // 4. Calculate Subject Stats for Insights
     const subjectStats = await prisma.respostaUsuario.findMany({
@@ -48,10 +48,18 @@ export default async function PerformancePage() {
     const weakest = subjectList[0];
     const strongest = subjectList[subjectList.length - 1];
 
-    // Timeline (Mock for MVP, replace with aggregation by date)
-    const timeline = [
-        { date: new Date().toLocaleDateString('pt-BR'), type: 'Geral', score: media.toFixed(1), trend: '-' }
-    ];
+    // 5. Fetch Simulation History
+    const simulados = await prisma.simulado.findMany({
+        orderBy: { data: 'desc' },
+        take: 10
+    });
+
+    const timeline = simulados.map(s => ({
+        date: s.data.toLocaleDateString('pt-BR'),
+        type: 'Simulado', // Could be dynamic if we had types
+        score: s.percentual_geral.toFixed(1),
+        trend: s.percentual_geral >= 85 ? '⬆ Alta' : (s.percentual_geral >= 70 ? '➡ Estável' : '⬇ Baixa')
+    }));
 
     return (
         <div className="performance-container">
@@ -98,17 +106,17 @@ export default async function PerformancePage() {
                         <div className="bg-white/5 p-4 rounded-lg border border-white/10 mb-4">
                             <div className="flex items-center gap-2 mb-2">
                                 <MapPin className="text-neon-yellow" size={18} />
-                                <span className="text-sm font-semibold text-white">Regional: São Luís - MA</span>
+                                <span className="text-sm font-semibold text-white">Microrregião 158 - TI</span>
                             </div>
-                            {isCompetitiveSaoLuis ? (
+                            {isCompetitiveTI ? (
                                 <div className="text-success flex items-center gap-2">
                                     <CheckCircle2 size={16} />
-                                    <span className="font-bold">Competitivo</span>
+                                    <span className="font-bold">Perfil Competitivo</span>
                                 </div>
                             ) : (
                                 <div className="text-error flex items-center gap-2">
                                     <AlertTriangle size={16} />
-                                    <span className="font-bold">Ainda não competitivo (&lt; 82%)</span>
+                                    <span className="font-bold">Abaixo do corte estimado (&lt; 80%)</span>
                                 </div>
                             )}
                             <p className="text-xs text-secondary mt-1">A nota de corte estimada para sua região é alta. Mantenha o foco.</p>

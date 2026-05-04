@@ -1,23 +1,19 @@
-
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import {
-    ChevronLeft,
-    ChevronRight,
-    CheckCircle,
-    XCircle,
-    PlayCircle,
-    BookOpen,
-    Info,
-    ChevronDown,
-    ChevronUp,
-    Lock
-} from 'lucide-react';
-import { useSession } from 'next-auth/react';
-import { submitAnswer } from '@/app/actions';
+import { useRouter } from 'next/navigation';
+import { submitAnswer, submitExam } from '@/app/actions';
 import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardDescription, CardFooter } from '@/components/ui/card';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { ChevronLeft, ChevronRight, Clock, Map, CheckCircle, XCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface Question {
     id: number;
@@ -34,273 +30,310 @@ interface Question {
     comentario: string | null;
     comentario_detalhado: string | null;
     video_url: string | null;
+    prova?: {
+        ano: number;
+        tipo_prova: string;
+    };
 }
 
 interface Prova {
     id: number;
-    nome: string;
+    ano: number;
+    cargo: string;
+    tipo_prova: string;
+    versao: string;
     questoes: Question[];
 }
 
-const ExamEngine = ({ prova }: { prova: any }) => {
-    const { data: session } = useSession();
-    const isPremium = session?.user?.role === 'PREMIUM' || session?.user?.role === 'ADMIN';
+const ExamEngine = ({ prova }: { prova: Prova }) => {
+    const router = useRouter();
+    const isPremium = true; // Personal system is always premium
     const [currentIdx, setCurrentIdx] = useState(0);
-    const [selected, setSelected] = useState<string | null>(null);
-    const [showFeedback, setShowFeedback] = useState(false);
-    const [showDetailed, setShowDetailed] = useState(false);
     const [userAnswers, setUserAnswers] = useState<Record<number, string>>({});
-    const [startTime, setStartTime] = useState<number>(Date.now());
+    const [timeLeft, setTimeLeft] = useState(0);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Timer states
+    const [examStartTime] = useState<number>(Date.now());
 
     const question = prova.questoes[currentIdx];
     const isAnswered = !!userAnswers[question.id];
-    const currentSelection = userAnswers[question.id] || selected;
-    const isCorrect = userAnswers[question.id] === question.alternativa_correta_base;
 
     useEffect(() => {
-        // Reset timer when question changes if not answered
-        if (!isAnswered) {
-            setStartTime(Date.now());
-        }
-    }, [currentIdx, isAnswered]);
+        // Calculate max time: (questions.length / 70) * 5 hours (in seconds)
+        const maxTime = Math.ceil((prova.questoes.length / 70) * 18000);
+        setTimeLeft(maxTime);
 
-    const handleSelect = (letter: string) => {
-        if (isAnswered) return;
-        setSelected(letter);
+        // Timer
+        const timer = setInterval(() => {
+            setTimeLeft((prev) => {
+                if (prev <= 1) {
+                    clearInterval(timer);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [prova.questoes.length]);
+
+    const handleSelect = (value: string) => {
+        setUserAnswers(prev => ({ ...prev, [question.id]: value }));
     };
 
-    const handleConfirm = async () => {
-        if (!selected) return;
+    const handleFinishExam = async () => {
+        if (isSubmitting) return;
+        setIsSubmitting(true);
 
-        const timeSpent = Math.floor((Date.now() - startTime) / 1000);
-        const correct = selected === question.alternativa_correta_base;
+        const totalTime = Math.floor((Date.now() - examStartTime) / 1000);
 
-        setUserAnswers(prev => ({ ...prev, [question.id]: selected }));
-        setShowFeedback(true);
-
-        // Server Action
-        await submitAnswer({
-            questaoId: question.id,
-            respostaMarcada: selected,
-            correta: correct,
-            tempoGasto: timeSpent,
-            versao: 'v1'
+        const respostas = Object.entries(userAnswers).map(([qId, resposta]) => {
+            const q = prova.questoes.find((i: any) => i.id === Number(qId));
+            return {
+                questaoId: Number(qId),
+                respostaMarcada: resposta,
+                correta: q?.alternativa_correta_base === resposta,
+                tempoGasto: 0,
+                materia: q?.materia || ''
+            };
         });
-    };
 
-    const nextQuestion = () => {
-        if (currentIdx < prova.questoes.length - 1) {
-            setCurrentIdx(prev => prev + 1);
-            resetStateForNewQuestion(currentIdx + 1);
+        try {
+            const result = await submitExam({
+                tempoTotal: totalTime,
+                tipo: 'prova',
+                config: { provaId: prova.id },
+                respostas
+            });
+
+            if (result.success) {
+                toast.success("Simulado finalizado!");
+                router.push(`/simulado/resultado/${result.id}`);
+            } else {
+                toast.error("Erro ao finalizar simulado.");
+                setIsSubmitting(false);
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error("Erro inesperado.");
+            setIsSubmitting(false);
         }
     };
 
-    const prevQuestion = () => {
-        if (currentIdx > 0) {
-            setCurrentIdx(prev => prev - 1);
-            resetStateForNewQuestion(currentIdx - 1);
-        }
+    const formatTime = (seconds: number) => {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     };
 
-    const resetStateForNewQuestion = (newIdx: number) => {
-        const nextQ = prova.questoes[newIdx];
-        const answered = userAnswers[nextQ.id];
-        setSelected(answered || null);
-        setShowFeedback(!!answered);
-        setShowDetailed(false);
-    };
-
-    const alternatives = [
-        { letter: 'A', text: question.alternativa_A },
-        { letter: 'B', text: question.alternativa_B },
-        { letter: 'C', text: question.alternativa_C },
-        { letter: 'D', text: question.alternativa_D },
-        { letter: 'E', text: question.alternativa_E },
-    ];
+    const progress = (Object.keys(userAnswers).length / prova.questoes.length) * 100;
 
     return (
-        <div className="exam-engine-container">
-            <div className="exam-sidebar glass-panel">
-                <div className="question-grid">
-                    {prova.questoes.map((q: any, idx: number) => (
-                        <button
-                            key={q.id}
-                            onClick={() => {
-                                setCurrentIdx(idx);
-                                resetStateForNewQuestion(idx);
-                            }}
-                            className={`grid-item ${currentIdx === idx ? 'current' : ''} ${userAnswers[q.id] ? (userAnswers[q.id] === q.alternativa_correta_base ? 'correct' : 'incorrect') : ''}`}
-                        >
-                            {idx + 1}
-                        </button>
-                    ))}
+        <div className="min-h-screen bg-background flex flex-col">
+            {/* Header / Timer Bar */}
+            <div className="sticky top-0 z-50 bg-background border-b shadow-sm">
+                <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <span className="font-bold text-xl text-primary">BB Simulados</span>
+                        <div className="h-6 w-px bg-border hidden sm:block"></div>
+                        <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground">
+                            <Clock className="w-4 h-4" />
+                            <span>{formatTime(timeLeft)}</span>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        <span className="text-sm text-muted-foreground hidden md:block">
+                            {Object.keys(userAnswers).length}/{prova.questoes.length} respondidas
+                        </span>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button variant="destructive" className="bg-red-600 hover:bg-red-700">Finalizar</Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        Você respondeu {Object.keys(userAnswers).length} de {prova.questoes.length} questões.
+                                        Ao finalizar, você não poderá alterar suas respostas.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction onClick={handleFinishExam} className="bg-primary text-primary-foreground">
+                                        Confirmar e Enviar
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </div>
                 </div>
+                <Progress value={progress} className="h-1 rounded-none" />
             </div>
 
-            <div className="exam-content">
-                <div className="question-card glass-panel p-8">
-                    <div className="question-header">
-                        <span className="badge-pill bg-info-glass">{question.materia}</span>
-                        <span className="question-number">Questão {currentIdx + 1} de {prova.questoes.length}</span>
-                    </div>
-
-                    <div className="question-body mt-6">
-                        <p className="enunciado-text">{question.enunciado}</p>
-
-                        {question.imagem_url && (
-                            <div className="question-image mt-4 mb-4">
-                                <Image
-                                    src={`/uploads/${question.imagem_url}`}
-                                    alt="Imagem da questão"
-                                    width={600}
-                                    height={400}
-                                    style={{ maxWidth: '100%', height: 'auto', borderRadius: '8px' }}
-                                />
+            <main className="flex-1 container mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Question Area */}
+                <div className="lg:col-span-9 space-y-6">
+                    <Card className="border-2 shadow-sm">
+                        <CardHeader>
+                            <div className="flex justify-between items-start mb-2">
+                                <span className="text-sm font-semibold text-primary uppercase tracking-wider">{question.materia}</span>
+                                <span className="text-sm text-muted-foreground">Questão {currentIdx + 1} de {prova.questoes.length}</span>
                             </div>
-                        )}
-                    </div>
-
-                    <div className="alternatives-list mt-8">
-                        {alternatives.map((alt) => {
-                            let statusClass = '';
-                            if (isAnswered) {
-                                if (alt.letter === question.alternativa_correta_base) statusClass = 'correct';
-                                else if (alt.letter === userAnswers[question.id]) statusClass = 'incorrect';
-                            } else if (selected === alt.letter) {
-                                statusClass = 'selected';
-                            }
-
-                            return (
-                                <button
-                                    key={alt.letter}
-                                    onClick={() => handleSelect(alt.letter)}
-                                    className={`alternative-item ${statusClass}`}
-                                >
-                                    <span className="alt-letter">{alt.letter}</span>
-                                    <span className="alt-text">{alt.text}</span>
-                                    {isAnswered && alt.letter === question.alternativa_correta_base && (
-                                        <CheckCircle className="status-icon" size={20} />
-                                    )}
-                                    {isAnswered && alt.letter === userAnswers[question.id] && alt.letter !== question.alternativa_correta_base && (
-                                        <XCircle className="status-icon" size={20} />
-                                    )}
-                                </button>
-                            );
-                        })}
-                    </div>
-
-                    {!isAnswered ? (
-                        <div className="exam-actions mt-8">
-                            <button
-                                className="btn-primary w-full py-4 text-lg"
-                                disabled={!selected}
-                                onClick={handleConfirm}
-                            >
-                                Confirmar Resposta
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="feedback-section mt-8 animate-fade-in">
-                            <div className={`feedback-banner ${isCorrect ? 'bg-success-glass' : 'bg-error-glass'}`}>
-                                {isCorrect ? (
-                                    <><CheckCircle className="text-success" /> <span>Resposta Correta!</span></>
-                                ) : (
-                                    <><XCircle className="text-error" /> <span>Resposta Errada. A correta é a alternativa {question.alternativa_correta_base}.</span></>
-                                )}
-                            </div>
-
-                            <div className="solution-panel mt-4">
-                                <div className="solution-buttons">
-                                    <button
-                                        className="glass-panel p-3 flex-1 flex-center gap-2 hover-bright"
-                                        onClick={() => setShowDetailed(!showDetailed)}
-                                    >
-                                        {isPremium ? <BookOpen size={18} /> : <Lock size={18} />}
-                                        {showDetailed ? 'Esconder Solução' : 'Ver Solução Detalhada'}
-                                        {showDetailed ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                                    </button>
-
-                                    {question.video_url && (
-                                        <div className="flex-1">
-                                            {isPremium ? (
-                                                <a
-                                                    href={question.video_url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="glass-panel p-3 w-full flex-center gap-2 text-error hover-bright hidden md:flex"
-                                                >
-                                                    <PlayCircle size={18} />
-                                                    Assistir Vídeo Aula
-                                                </a>
-                                            ) : (
-                                                <button className="glass-panel p-3 w-full flex-center gap-2 text-gray-400 cursor-not-allowed hidden md:flex">
-                                                    <Lock size={18} />
-                                                    Vídeo Aula (Premium)
-                                                </button>
-                                            )}
-                                        </div>
-                                    )}
+                            <CardDescription className="text-lg font-medium text-foreground whitespace-pre-wrap">
+                                {question.enunciado}
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {question.imagem_url && (
+                                <div className="mb-6 rounded-lg overflow-hidden border">
+                                    <Image
+                                        src={`/uploads/${question.imagem_url}`}
+                                        alt="Imagem da questão"
+                                        width={600}
+                                        height={400}
+                                        style={{ maxWidth: '100%', height: 'auto' }}
+                                    />
                                 </div>
+                            )}
 
-                                {showDetailed && (
-                                    <div className="detailed-content glass-panel p-6 mt-4 animate-slide-down">
-                                        {!isPremium ? (
-                                            <div className="text-center py-8">
-                                                <Lock className="mx-auto text-yellow-500 mb-4" size={48} />
-                                                <h3 className="text-xl font-bold mb-2">Conteúdo Exclusivo</h3>
-                                                <p className="text-gray-400 mb-6">Atualize para o plano Premium para ver a solução detalhada e videoaulas.</p>
-                                                <a href="/#pricing" className="btn-primary px-6 py-2 rounded-full">
-                                                    Seja Premium
-                                                </a>
-                                            </div>
-                                        ) : (
-                                            <>
-                                                <h4>📝 Comentário do Professor</h4>
-                                                <div
-                                                    className="mt-3 text-secondary"
-                                                    dangerouslySetInnerHTML={{ __html: question.comentario || 'Sem comentário breve.' }}
-                                                />
-
-                                                <h4 className="mt-6">📚 Passo a Passo</h4>
-                                                <div
-                                                    className="mt-3 solution-rich-text"
-                                                    dangerouslySetInnerHTML={{ __html: question.comentario_detalhado || 'Ainda estamos preparando a solução detalhada para esta questão.' }}
-                                                />
-                                                {question.video_url && (
-                                                    <div className="mt-4 md:hidden">
-                                                        <a href={question.video_url} target="_blank" rel="noopener noreferrer" className="text-error flex items-center gap-2">
-                                                            <PlayCircle size={16} /> Assistir Vídeo
-                                                        </a>
-                                                    </div>
-                                                )}
-                                            </>
-                                        )}
+                            <RadioGroup
+                                value={userAnswers[question.id]}
+                                onValueChange={handleSelect}
+                                className="space-y-3"
+                            >
+                                {['A', 'B', 'C', 'D', 'E'].map((alt) => (
+                                    <div key={alt} className="flex items-start space-x-2">
+                                        <RadioGroupItem value={alt} id={`q${question.id}-${alt}`} className="mt-1" />
+                                        <Label
+                                            htmlFor={`q${question.id}-${alt}`}
+                                            className={cn(
+                                                "flex-1 p-3 rounded-md border cursor-pointer hover:bg-muted transition-colors leading-relaxed",
+                                                userAnswers[question.id] === alt ? "border-primary bg-primary/5 ring-1 ring-primary" : ""
+                                            )}
+                                        >
+                                            <span className="font-bold mr-2 text-primary">({alt})</span>
+                                            {question[`alternativa_${alt}` as keyof Question]}
+                                        </Label>
                                     </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
+                                ))}
+                            </RadioGroup>
 
-                    <div className="navigation-footer flex-between mt-8 pt-6 border-t border-glass">
-                        <button
-                            className="glass-panel px-6 py-2 flex-center gap-2"
-                            onClick={prevQuestion}
-                            disabled={currentIdx === 0}
-                        >
-                            <ChevronLeft size={20} /> Anterior
-                        </button>
-                        <button
-                            className="glass-panel px-6 py-2 flex-center gap-2"
-                            onClick={nextQuestion}
-                            disabled={currentIdx === prova.questoes.length - 1}
-                        >
-                            Próxima <ChevronRight size={20} />
-                        </button>
-                    </div>
+                            <div className="mt-8">
+                                <Explanation question={question} />
+                            </div>
+                        </CardContent>
+                        <CardFooter className="flex justify-between pt-6 border-t bg-muted/20">
+                            <Button
+                                variant="outline"
+                                onClick={() => setCurrentIdx(prev => Math.max(0, prev - 1))}
+                                disabled={currentIdx === 0}
+                            >
+                                <ChevronLeft className="w-4 h-4 mr-2" /> Anterior
+                            </Button>
+
+                            <span className="text-sm text-muted-foreground">
+                                {currentIdx + 1} / {prova.questoes.length}
+                            </span>
+
+                            <Button
+                                onClick={() => setCurrentIdx(prev => Math.min(prova.questoes.length - 1, prev + 1))}
+                                disabled={currentIdx === prova.questoes.length - 1}
+                            >
+                                Próxima <ChevronRight className="w-4 h-4 ml-2" />
+                            </Button>
+                        </CardFooter>
+                    </Card>
                 </div>
-            </div>
+
+                {/* Navigation Sidebar */}
+                <div className="lg:col-span-3">
+                    <Card className="sticky top-24">
+                        <CardHeader className="pb-3">
+                            <h3 className="text-base font-bold flex items-center gap-2">
+                                <Map className="w-4 h-4" /> Mapa da Prova
+                            </h3>
+                        </CardHeader>
+                        <CardContent>
+                            <ScrollArea className="h-[calc(100vh-300px)] pr-4">
+                                <div className="grid grid-cols-5 gap-2">
+                                    {prova.questoes.map((q, idx) => {
+                                        const isAnswered = !!userAnswers[q.id];
+                                        const isCurrent = idx === currentIdx;
+                                        return (
+                                            <button
+                                                key={q.id}
+                                                onClick={() => setCurrentIdx(idx)}
+                                                className={cn(
+                                                    "w-10 h-10 rounded-md text-sm font-bold flex items-center justify-center transition-all",
+                                                    isCurrent
+                                                        ? "bg-primary text-primary-foreground ring-2 ring-offset-2 ring-primary"
+                                                        : isAnswered
+                                                            ? "bg-blue-600 text-white dark:bg-blue-700"
+                                                            : "bg-muted text-muted-foreground hover:bg-muted/80"
+                                                )}
+                                            >
+                                                {idx + 1}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </ScrollArea>
+                        </CardContent>
+                    </Card>
+                </div>
+            </main>
         </div>
     );
 };
+
+// Explanation Component
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Youtube } from 'lucide-react';
+
+function Explanation({ question }: { question: Question }) {
+    const [isOpen, setIsOpen] = useState(false);
+
+    // Generate YouTube search query for this specific question
+    const searchQuery = `Banco do Brasil Cesgranrio ${question.prova?.ano || 2023} ${question.materia} questão ${question.numero_base}`;
+    const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(searchQuery)}`;
+
+    return (
+        <Collapsible open={isOpen} onOpenChange={setIsOpen} className="border rounded-md bg-muted/30">
+            <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="w-full flex justify-between p-4 hover:bg-muted/50">
+                    <span className="font-semibold flex items-center gap-2">
+                        💡 Ver Resolução Comentada
+                    </span>
+                    <span className="text-muted-foreground">{isOpen ? "Ocultar" : "Mostrar"}</span>
+                </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="p-4 pt-0 border-t bg-background/50">
+                <div className="pt-4 space-y-4">
+                    <div>
+                        <span className="font-bold text-primary">Gabarito: {question.alternativa_correta_base}</span>
+                        <p className="mt-2 text-sm leading-relaxed">
+                            {question.comentario || question.comentario_detalhado || "Sem comentário disponível."}
+                        </p>
+                    </div>
+
+                    <div>
+                        <a
+                            href={question.video_url || searchUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 text-red-600 hover:underline font-medium"
+                        >
+                            <Youtube className="w-5 h-5" />
+                            {question.video_url ? "Assistir resolução em vídeo" : "Buscar resolução no YouTube"}
+                        </a>
+                    </div>
+                </div>
+            </CollapsibleContent>
+        </Collapsible>
+    );
+}
 
 export default ExamEngine;

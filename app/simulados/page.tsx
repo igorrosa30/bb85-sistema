@@ -33,13 +33,13 @@ export default async function SimuladosPage() {
                                 <FileText className="text-neon-blue" size={24} />
                             </div>
                             <div className="exam-title-group">
-                                <h3>{prova.nome}</h3>
+                                <h3>{prova.cargo} - {prova.tipo_prova}</h3>
                                 <span className="exam-ano text-neon-yellow">{prova.ano}</span>
                             </div>
                         </div>
 
                         <p className="exam-desc mt-3 text-secondary">
-                            Prepare-se para o Banco do Brasil com este simulado completo da prova {prova.nome}.
+                            Prepare-se para o Banco do Brasil com este simulado completo da prova {prova.cargo} ({prova.versao}).
                         </p>
 
                         <div className="exam-stats-row mt-4">

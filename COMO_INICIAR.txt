@@ -1,0 +1,68 @@
+# 🚀 COMO INICIAR O SISTEMA
+
+## Problema: PowerShell bloqueado
+
+O Windows está bloqueando a execução de scripts npm. Use o arquivo `.bat` em vez disso!
+
+---
+
+## ✅ SOLUÇÃO RÁPIDA
+
+1. **Dê duplo clique** em: `INICIAR_SERVIDOR.bat`
+
+2. Aguarde o servidor iniciar (30-60 segundos)
+
+3. Acesse: **http://localhost:3000**
+
+---
+
+## O que o script faz:
+
+1. Instala dependências (`npm install`)
+2. Gera Prisma Client (`npx prisma generate`)
+3. Inicia servidor (`npm run dev`)
+
+---
+
+## ⚠️ Se der erro "Prisma Client não encontrado"
+
+Rode manualmente:
+
+```bash
+cd "c:\Users\Igor\Desktop\Sistema Concurso BB\bb85-system"
+npx prisma generate
+npx prisma db push
+```
+
+Depois rode `INICIAR_SERVIDOR.bat` novamente.
+
+---
+
+## 🔧 Solução Alternativa (Habilitar PowerShell)
+
+Se quiser usar `npm` direto no PowerShell:
+
+1. Abra PowerShell como **Administrador**
+2. Execute:
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+3. Confirme com `S` (Sim)
+
+Depois pode usar:
+```bash
+npm run dev
+```
+
+---
+
+## 📍 Rotas Disponíveis
+
+- `/` - Dashboard
+- `/simulados` - Lista de simulados
+- `/performance` - Análise de desempenho
+- `/ranking` - Ranking geral
+
+---
+
+**Dica**: Mantenha o terminal aberto enquanto usa o sistema!

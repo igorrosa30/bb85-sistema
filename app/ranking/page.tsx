@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 
 export default async function RankingPage() {
-    // Logic to simulate São Luís ranking
+    // Logic to simulate Microrregião 158 ranking
     // Fetch user's best score from Simulados or calculate from answers
     const bestSimulado = await prisma.simulado.findFirst({
         orderBy: { percentual_geral: 'desc' }
@@ -18,7 +18,7 @@ export default async function RankingPage() {
 
     const userScore = bestSimulado?.percentual_geral || 0;
 
-    // Simulated competition for Microrregião São Luís
+    // Simulated competition for Microrregião 158 - TI
     const totalParticipants = 1450;
     // Heuristic: if user has 0%, they are last. If 90%, they are top.
     let position = Math.floor(totalParticipants - (userScore / 100) * totalParticipants) + 1;
@@ -35,8 +35,8 @@ export default async function RankingPage() {
     return (
         <div className="ranking-container">
             <header className="page-header">
-                <h1 className="text-neon-blue">Ranking São Luís</h1>
-                <p className="subtitle">Simulador de Classificação - Microrregião 058</p>
+                <h1 className="text-neon-blue">Ranking TI</h1>
+                <p className="subtitle">Simulador de Classificação - Microrregião 158</p>
             </header>
 
             <div className="ranking-grid">
@@ -62,7 +62,7 @@ export default async function RankingPage() {
 
                 <div className="card-table glass-panel p-6">
                     <div className="flex-between mb-4">
-                        <h3>Top 10 - Simulado São Luís</h3>
+                        <h3>Top 10 - Simulado TI</h3>
                         <div className="badge-pill score-badge small">
                             <Activity size={14} className="me-1" />
                             Tempo Real
@@ -113,7 +113,7 @@ export default async function RankingPage() {
             <div className="alert-box glass-panel mt-4 p-4 border-l-info">
                 <Users size={20} className="text-neon-blue" />
                 <p className="small text-secondary mb-0">
-                    Este ranking é um simulado baseado no desempenho histórico da região de São Luís (MA) e dados de outros usuários. Use como referência para seu planejamento de estudos.
+                    Este ranking é um simulado baseado no desempenho histórico da Microrregião 158 (TI) e dados de outros usuários. Use como referência para seu planejamento de estudos.
                 </p>
             </div>
         </div>

@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BB85 - Sistema Pessoal de Estudo
 
-## Getting Started
+Sistema simplificado para uso pessoal, focado em simulados, tracking de desempenho e aprovação no Banco do Brasil.
 
-First, run the development server:
+## 🎯 Funcionalidades
 
+- ✅ Simulados completos com questões reais
+- ✅ Tracking de desempenho por matéria
+- ✅ Histórico de acertos e evolução
+- ✅ Meta de 85% de acertos
+- ✅ 15.000+ questões comentadas
+- ✅ Análise detalhada de performance
+
+## 🚀 Como Usar Localmente
+
+### 1. Instalar Dependências
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Configurar Database
+```bash
+npx prisma generate
+npx prisma db push
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Rodar Localmente
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Acesse: `http://localhost:3000`
 
-## Learn More
+## 📦 Deploy no Netlify
 
-To learn more about Next.js, take a look at the following resources:
+### 1. Fazer Upload no GitHub
+- Crie um repositório no GitHub
+- Faça upload de todos os arquivos (exceto `node_modules` e `.next`)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 2. Conectar ao Netlify
+- Acesse https://app.netlify.com
+- Clique em "Add new site" → "Import an existing project"
+- Conecte ao seu repositório GitHub
+- Build settings:
+  - Build command: `npm run build`
+  - Publish directory: `.next`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 3. Deploy Automático
+O Netlify fará deploy automaticamente a cada push no GitHub.
 
-## Deploy on Vercel
+## 📊 Estrutura
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `/` - Dashboard principal
+- `/simulado` - Fazer simulados
+- `/desempenho` - Ver estatísticas
+- `/dashboard/history` - Histórico de simulados
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🗄️ Database
+
+SQLite local (`dev.db`) - todos os dados ficam salvos localmente.
+
+## ⚙️ Tecnologias
+
+- Next.js 16
+- Prisma ORM
+- SQLite
+- Tailwind CSS
+- Lucide Icons
+
+---
+
+**Foco total**: Estudo, prática e aprovação! 🎯

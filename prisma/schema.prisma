@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -26,7 +26,7 @@ model Questao {
   numero_base     Int
   materia         String
   subtema         String?
-  peso_materia    Float
+  peso_materia    Float?
   enunciado       String
   imagem_url      String?
   alternativa_A   String
@@ -36,6 +36,9 @@ model Questao {
   alternativa_E   String
   alternativa_correta_base String
   comentario      String?
+  tipo_pegadinha  String?  // sintaxe_exata | polimorfismo | sql_subconsulta | algoritmo_manual | conceito_direto
+  peso_real       Float    @default(1.5)
+  is_real_2023    Boolean  @default(false)
   comentario_detalhado String?
   video_url       String?
   mapeamentos     MapeamentoVersao[]
@@ -53,15 +56,18 @@ model MapeamentoVersao {
 
 model RespostaUsuario {
   id              Int @id @default(autoincrement())
+  simulado_id     Int?
+  simulado        Simulado? @relation(fields: [simulado_id], references: [id])
   questao_id      Int
   questao         Questao @relation(fields: [questao_id], references: [id])
-  versao_utilizada String
+  versao_utilizada String?
   resposta_marcada String
   correta_ou_errada Boolean
   tempo_gasto     Int // seconds
+  sintese_erro    String?  // Piazzi: Síntese de 140 chars ao errar
+  proxima_revisao DateTime? // Ciclo [0, 1, 3, 7, 15, 30]
+  ciclo_revisao   Int      @default(0)
   data            DateTime @default(now())
-  userId          String?
-  user            User?    @relation(fields: [userId], references: [id])
 }
 
 model Simulado {
@@ -71,18 +77,14 @@ model Simulado {
   percentual_geral Float
   percentual_materia_json String
   classificacao   String
-  userId          String?
-  user            User?    @relation(fields: [userId], references: [id])
+  tipo            String? // completo, prova, materia, personalizado
+  config_json     String? // Stores SimuladoConfig
+  respostas       RespostaUsuario[]
 }
 
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  password      String
-  role          String    @default("FREE") // FREE, PREMIUM, ADMIN
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  respostas     RespostaUsuario[]
-  simulados     Simulado[]
+model NotaRedacao {
+  id    Int @id @default(autoincrement())
+  data  DateTime @default(now())
+  nota  Float
+  tema  String?
 }
