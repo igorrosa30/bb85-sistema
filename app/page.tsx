@@ -2,37 +2,47 @@ import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 import { BarChart, BookOpen, Target, TrendingUp, Award, Clock } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Dashboard() {
-    const questaoCount = await prisma.questao.count();
-    const provaCount = await prisma.prova.count();
-    const simuladoCount = await prisma.simulado.count();
-    const respostaCount = await prisma.respostaUsuario.count();
+    let questaoCount = 0;
+    let provaCount = 0;
+    let simuladoCount = 0;
+    let respostaCount = 0;
+    let percentualGeral = "0.0";
+    let cadernoErrosCount = 0;
 
-    // Calcular estatísticas ponderadas (BB85-X Supreme v2)
-    const respostas = await prisma.respostaUsuario.findMany({
-        include: { questao: true }
-    });
+    try {
+        questaoCount = await prisma.questao.count();
+        provaCount = await prisma.prova.count();
+        simuladoCount = await prisma.simulado.count();
+        respostaCount = await prisma.respostaUsuario.count();
 
-    let totalPointsPossible = 0;
-    let pointsScored = 0;
-    let errosCount = 0;
+        // Calcular estatísticas ponderadas (BB85-X Supreme v2)
+        const respostas = await prisma.respostaUsuario.findMany({
+            include: { questao: true }
+        });
 
-    respostas.forEach(r => {
-        const peso = r.questao.peso_real || 1.5;
-        totalPointsPossible += peso;
-        if (r.correta_ou_errada) {
-            pointsScored += peso;
-        } else {
-            errosCount++;
-        }
-    });
+        let totalPointsPossible = 0;
+        let pointsScored = 0;
 
-    const notaPonderada = totalPointsPossible > 0 ? (pointsScored / totalPointsPossible) * 100 : 0;
-    const percentualGeral = notaPonderada.toFixed(1);
+        respostas.forEach(r => {
+            const peso = r.questao.peso_real || 1.5;
+            totalPointsPossible += peso;
+            if (r.correta_ou_errada) {
+                pointsScored += peso;
+            }
+        });
 
-    const cadernoErrosCount = await prisma.respostaUsuario.count({
-        where: { correta_ou_errada: false }
-    });
+        const notaPonderada = totalPointsPossible > 0 ? (pointsScored / totalPointsPossible) * 100 : 0;
+        percentualGeral = notaPonderada.toFixed(1);
+
+        cadernoErrosCount = await prisma.respostaUsuario.count({
+            where: { correta_ou_errada: false }
+        });
+    } catch (e) {
+        console.error("Database not initialized yet");
+    }
 
     return (
         <div className="p-6 md:p-8">
