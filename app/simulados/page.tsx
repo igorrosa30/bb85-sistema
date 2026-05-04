@@ -8,6 +8,9 @@ import {
     ArrowRight
 } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
+
 export default async function SimuladosPage() {
     const provas = await prisma.prova.findMany({
         include: {

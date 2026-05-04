@@ -10,6 +10,9 @@ import {
     MapPin
 } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
+
 export default async function PerformancePage() {
     // 1. Fetch real stats from RespostaUsuario
     const totalAnswers = await prisma.respostaUsuario.count();

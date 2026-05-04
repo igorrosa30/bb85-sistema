@@ -9,6 +9,9 @@ import {
     Activity
 } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
+
 export default async function RankingPage() {
     // Logic to simulate Microrregião 158 ranking
     // Fetch user's best score from Simulados or calculate from answers
