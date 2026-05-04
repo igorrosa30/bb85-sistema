@@ -4,71 +4,89 @@ import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 
 async function updateGamification(isCorrect: boolean, isSimulado: boolean = false, nota: number = 0) {
-    const userId = "unico";
-    let xpGain = isCorrect ? 10 : 2;
-    if (isSimulado) xpGain = 100 + Math.floor(nota * 2);
+    try {
+        const userId = "unico";
+        let xpGain = isCorrect ? 10 : 2;
+        if (isSimulado) xpGain = 100 + Math.floor(nota * 2);
 
-    const profile = await prisma.userProfile.upsert({
-        where: { id: userId },
-        update: {},
-        create: { id: userId, xp: 0, level: 1, streak: 1, lastActivity: new Date() }
-    });
+        const profile = await prisma.userProfile.upsert({
+            where: { id: userId },
+            update: {},
+            create: { id: userId, xp: 0, level: 1, streak: 1, lastActivity: new Date() }
+        });
 
-    // Streak Logic
-    const now = new Date();
-    const last = new Date(profile.lastActivity);
-    const diffDays = Math.floor((now.getTime() - last.getTime()) / (1000 * 3600 * 24));
-    
-    let newStreak = profile.streak;
-    if (diffDays === 1) newStreak++;
-    else if (diffDays > 1) newStreak = 1;
+        // Streak Logic
+        const now = new Date();
+        const last = new Date(profile.lastActivity);
+        const diffDays = Math.floor((now.getTime() - last.getTime()) / (1000 * 3600 * 24));
+        
+        let newStreak = profile.streak;
+        if (diffDays === 1) newStreak++;
+        else if (diffDays > 1) newStreak = 1;
 
-    // Leveling Logic (Simple)
-    let newXP = profile.xp + xpGain;
-    let newLevel = profile.level;
-    const xpNextLevel = Math.floor(100 * Math.pow(newLevel, 1.5));
+        // Leveling Logic (Simple)
+        let newXP = profile.xp + xpGain;
+        let newLevel = profile.level;
+        const xpNextLevel = Math.floor(100 * Math.pow(newLevel, 1.5));
 
-    if (newXP >= xpNextLevel) {
-        newXP -= xpNextLevel;
-        newLevel++;
-    }
-
-    await prisma.userProfile.update({
-        where: { id: userId },
-        data: {
-            xp: newXP,
-            level: newLevel,
-            streak: newStreak,
-            lastActivity: now,
-            totalQuestoes: { increment: 1 },
-            totalAcertos: { increment: isCorrect ? 1 : 0 }
+        if (newXP >= xpNextLevel) {
+            newXP -= xpNextLevel;
+            newLevel++;
         }
-    });
 
-    return { xpGain, leveledUp: newLevel > profile.level };
+        await prisma.userProfile.update({
+            where: { id: userId },
+            data: {
+                xp: newXP,
+                level: newLevel,
+                streak: newStreak,
+                lastActivity: now,
+                totalQuestoes: { increment: 1 },
+                totalAcertos: { increment: isCorrect ? 1 : 0 }
+            }
+        });
+
+        return { xpGain, leveledUp: newLevel > profile.level };
+    } catch (e) {
+        console.error("Erro ao atualizar gamificacao:", e);
+        return { xpGain: 0, leveledUp: false };
+    }
 }
+
 
 export async function getQuestionHistory(questaoId: number) {
-    const history = await prisma.respostaUsuario.findMany({
-        where: { questao_id: questaoId },
-        orderBy: { data: 'desc' },
-        take: 10
-    });
+    try {
+        const history = await prisma.respostaUsuario.findMany({
+            where: { questao_id: questaoId },
+            orderBy: { data: 'desc' },
+            take: 10
+        });
 
-    const total = history.length;
-    const acertos = history.filter(h => h.correta_ou_errada).length;
-    const erros = total - acertos;
-    const ultimaVez = history[0]?.data;
+        const total = history.length;
+        const acertos = history.filter(h => h.correta_ou_errada).length;
+        const erros = total - acertos;
+        const ultimaVez = history[0]?.data;
 
-    return { total, acertos, erros, ultimaVez };
+        return { total, acertos, erros, ultimaVez };
+    } catch (e) {
+        return { total: 0, acertos: 0, erros: 0, ultimaVez: null };
+    }
 }
+
 
 export async function getUserProfile() {
-    const userId = "unico";
-    return await prisma.userProfile.findUnique({
-        where: { id: userId }
-    }) || { xp: 0, level: 1, streak: 1, totalQuestoes: 0, totalAcertos: 0 };
+    try {
+        const userId = "unico";
+        const profile = await prisma.userProfile.findUnique({
+            where: { id: userId }
+        });
+        return profile || { xp: 0, level: 1, streak: 1, totalQuestoes: 0, totalAcertos: 0 };
+    } catch (error) {
+        console.error("Erro ao buscar perfil (talvez tabela nao exista):", error);
+        return { xp: 0, level: 1, streak: 1, totalQuestoes: 0, totalAcertos: 0 };
+    }
 }
+
 
 export async function submitAnswer(data: {
     questaoId: number;
