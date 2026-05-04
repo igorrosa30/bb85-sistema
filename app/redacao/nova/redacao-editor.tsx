@@ -62,37 +62,37 @@ ${conteudo}`;
     return (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Editor Area */}
-            <div className="lg:col-span-8 space-y-6">
-                <div className="space-y-2">
-                    <label className="text-xs font-black text-secondary uppercase tracking-wider">Tema da Redação</label>
+            <div className="lg:col-span-8 space-y-8">
+                <div className="space-y-3">
+                    <label className="text-[10px] font-black text-[#a1a1aa] uppercase tracking-[0.2em]">Tema da Batalha</label>
                     <input 
                         type="text"
                         placeholder="Ex: Os desafios da segurança digital nos bancos modernos"
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-lg font-bold text-white focus:border-neon-blue focus:ring-1 focus:ring-neon-blue outline-none transition-all"
+                        className="w-full bg-[#0a0a0a] border border-white/10 rounded-2xl px-6 py-4 text-lg font-black text-white focus:border-[#eaff20] outline-none transition-all"
                         value={tema}
                         onChange={(e) => setTema(e.target.value)}
                     />
                 </div>
 
-                <div className="space-y-2 relative">
-                    <div className="flex justify-between items-center mb-1">
-                        <label className="text-xs font-black text-secondary uppercase tracking-wider">Seu Texto</label>
-                        <div className="flex items-center gap-4 text-[10px] font-bold">
-                            <span className={estimatedLines < 20 || estimatedLines > 30 ? 'text-red-400' : 'text-green-400'}>
-                                {estimatedLines} LINHAS (ESTIMADO)
+                <div className="space-y-3 relative">
+                    <div className="flex justify-between items-center mb-2">
+                        <label className="text-[10px] font-black text-[#a1a1aa] uppercase tracking-[0.2em]">Sua Dissertação</label>
+                        <div className="flex items-center gap-6 text-[10px] font-black uppercase">
+                            <span className={estimatedLines < 20 || estimatedLines > 30 ? 'text-red-500' : 'text-green-500'}>
+                                {estimatedLines} / 30 LINHAS
                             </span>
-                            <span className="text-secondary">{conteudo.length} CARACTERES</span>
+                            <span className="text-[#a1a1aa]">{conteudo.length} CARACTERES</span>
                         </div>
                     </div>
                     <Textarea 
-                        placeholder="Comece sua redação aqui..."
-                        className="min-h-[500px] bg-black/40 border-white/10 text-base leading-relaxed font-serif p-6 resize-none focus:border-neon-blue transition-all"
+                        placeholder="Inicie sua argumentação... (Foque na clareza e conectivos)"
+                        className="min-h-[600px] bg-[#0a0a0a] border-white/10 text-lg leading-relaxed font-serif p-8 resize-none focus:border-[#eaff20] transition-all rounded-3xl"
                         value={conteudo}
                         onChange={(e) => setConteudo(e.target.value)}
                     />
                     
                     {lineWarning && (
-                        <div className="absolute bottom-4 right-4 flex items-center gap-2 bg-red-500/20 text-red-400 px-3 py-1.5 rounded-lg text-xs font-bold border border-red-500/30 animate-pulse">
+                        <div className="absolute bottom-6 right-6 flex items-center gap-2 bg-red-500/10 text-red-500 px-4 py-2 rounded-xl text-[10px] font-black border border-red-500/20 animate-pulse uppercase tracking-widest">
                             <AlertCircle size={14} />
                             {lineWarning}
                         </div>
@@ -102,7 +102,7 @@ ${conteudo}`;
                 <div className="flex gap-4">
                     <Button 
                         variant="outline" 
-                        className="flex-1 border-white/10 hover:bg-white/5 py-6 rounded-xl"
+                        className="flex-1 border-white/10 bg-white/5 hover:bg-white/10 py-8 rounded-2xl font-black uppercase tracking-widest text-xs"
                         onClick={() => handleSave('Rascunho')}
                         disabled={isSaving}
                     >
@@ -110,58 +110,62 @@ ${conteudo}`;
                         SALVAR RASCUNHO
                     </Button>
                     <Button 
-                        className="flex-1 bg-neon-blue text-black font-black py-6 rounded-xl hover:shadow-[0_0_20px_rgba(0,163,255,0.4)]"
+                        className="flex-1 bg-[#eaff20] text-black font-black py-8 rounded-2xl hover:shadow-[0_0_30px_rgba(234,255,32,0.4)] uppercase tracking-widest text-xs"
                         onClick={() => handleSave('Enviada')}
                         disabled={isSaving}
                     >
                         <Send className="mr-2" size={18} />
-                        CONCLUIR REDAÇÃO
+                        CONCLUIR E ENVIAR
                     </Button>
                 </div>
             </div>
 
             {/* AI Correction Assistant Sidebar */}
-            <div className="lg:col-span-4 space-y-6">
-                <div className="glass-panel p-6 border-neon-blue/30 bg-neon-blue/5">
-                    <div className="flex items-center gap-2 mb-4">
-                        <div className="p-2 bg-neon-blue text-black rounded-lg">
-                            <RotateCcw size={20} />
+            <div className="lg:col-span-4 space-y-8">
+                <div className="bg-[#0a0a0a] border border-[#00a3ff]/30 p-8 rounded-3xl relative overflow-hidden">
+                    <div className="absolute -top-10 -right-10 text-[#00a3ff]/5">
+                        <RotateCcw size={150} />
+                    </div>
+                    
+                    <div className="flex items-center gap-3 mb-6 relative z-10">
+                        <div className="p-3 bg-[#00a3ff]/20 text-[#00a3ff] rounded-xl">
+                            <RotateCcw size={24} />
                         </div>
-                        <h3 className="font-bold text-white uppercase text-sm tracking-tight">Assistente de Correção</h3>
+                        <h3 className="font-black text-white uppercase text-sm tracking-widest">IA de Correção</h3>
                     </div>
 
-                    <p className="text-xs text-secondary leading-relaxed mb-6">
-                        O BB85-X usa um prompt especializado para o **ChatGPT** corrigir sua redação no padrão exato da Cesgranrio.
+                    <p className="text-xs text-[#a1a1aa] leading-relaxed mb-8 relative z-10 font-medium">
+                        O sistema gera um prompt militarizado para o **ChatGPT** corrigir sua redação no nível máximo da Cesgranrio.
                     </p>
 
-                    <div className="space-y-4">
+                    <div className="space-y-4 relative z-10">
                         <Button 
-                            className="w-full bg-white/10 hover:bg-white/20 border border-white/10 text-white font-bold py-6 rounded-xl"
+                            className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-black py-6 rounded-2xl text-xs uppercase tracking-widest"
                             onClick={copyPrompt}
                             disabled={!conteudo}
                         >
                             {copied ? <Check className="mr-2 text-green-400" size={18} /> : <Copy className="mr-2" size={18} />}
-                            {copied ? 'PROMPT COPIADO!' : 'COPIAR PROMPT PARA IA'}
+                            {copied ? 'PRONTO PARA COLAR!' : 'COPIAR PROMPT IA'}
                         </Button>
                         
-                        <div className="p-4 bg-black/40 rounded-xl border border-white/5">
-                            <h4 className="text-[10px] font-black text-secondary uppercase mb-2">Instruções:</h4>
-                            <ol className="text-[10px] text-white/70 space-y-2 list-decimal list-inside">
-                                <li>Escreva sua redação no campo ao lado.</li>
-                                <li>Clique em "Copiar Prompt para IA".</li>
-                                <li>Cole no ChatGPT ou Gemini.</li>
-                                <li>Salve o rascunho aqui para não perder.</li>
-                            </ol>
+                        <div className="p-6 bg-black/40 rounded-2xl border border-white/5 space-y-3">
+                            <h4 className="text-[10px] font-black text-[#a1a1aa] uppercase tracking-widest">Protocolo:</h4>
+                            <div className="space-y-3">
+                                <ProtocolStep num="01" text="Escreva o texto completo." />
+                                <ProtocolStep num="02" text="Copie o Prompt Supreme." />
+                                <ProtocolStep num="03" text="Cole na IA (GPT-4 recomendado)." />
+                                <ProtocolStep num="04" text="Analise as falhas apontadas." />
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="glass-panel p-6 bg-white/5 border border-white/10">
-                    <h4 className="text-xs font-bold text-white mb-3 flex items-center gap-2">
-                        <AlertCircle size={14} className="text-neon-yellow" />
-                        Esqueleto da Introdução
+                <div className="bg-[#eaff20]/5 border border-[#eaff20]/10 p-6 rounded-2xl">
+                    <h4 className="text-[10px] font-black text-[#eaff20] mb-4 flex items-center gap-2 uppercase tracking-widest">
+                        <AlertCircle size={14} />
+                        Estrutura de Elite
                     </h4>
-                    <p className="text-[11px] text-secondary leading-relaxed italic">
+                    <p className="text-[11px] text-[#a1a1aa] leading-relaxed italic font-medium">
                         "No cenário contemporâneo brasileiro, é evidente que [TEMA] representa um desafio relevante. Nesse sentido, é crucial analisar como [ARGUMENTO 1] e [ARGUMENTO 2] potencializam essa problemática."
                     </p>
                 </div>
@@ -169,3 +173,14 @@ ${conteudo}`;
         </div>
     );
 }
+
+function ProtocolStep({ num, text }: { num: string, text: string }) {
+    return (
+        <div className="flex items-center gap-3">
+            <span className="text-[10px] font-black text-[#00a3ff]">{num}</span>
+            <span className="text-[10px] text-white/60 font-bold uppercase">{text}</span>
+        </div>
+    );
+}
+
+

@@ -1,25 +1,30 @@
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
-import { PenTool, FileText, Award, Info, Plus, ChevronRight } from 'lucide-react';
+import { PenTool, FileText, Award, Info, Plus, ChevronRight, Clock } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
 export default async function RedacaoPage() {
-    const redacoes = await prisma.redacao.findMany({
-        orderBy: { createdAt: 'desc' }
-    });
+    let redacoes = [];
+    try {
+        redacoes = await prisma.redacao.findMany({
+            orderBy: { createdAt: 'desc' }
+        });
+    } catch (e) {
+        console.error("Redacao Page Error:", e);
+    }
 
     return (
-        <div className="redacao-container p-6 md:p-8">
-            <header className="page-header mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="min-h-screen bg-[#050505] p-6 md:p-10 space-y-10 text-white">
+            <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-black text-white tracking-tight">Laboratório de Redação</h1>
-                    <p className="text-secondary mt-1">Treine para a nota 100 com o padrão Cesgranrio</p>
+                    <h1 className="text-4xl font-black tracking-tighter uppercase">Laboratório de <span className="text-[#eaff20]">Redação</span></h1>
+                    <p className="text-[#a1a1aa] font-medium mt-1">Treine para a nota 100 com o padrão Cesgranrio</p>
                 </div>
                 
                 <Link 
                     href="/redacao/nova" 
-                    className="flex items-center gap-2 bg-neon-blue text-black font-black px-6 py-3 rounded-xl hover:scale-105 transition-all shadow-[0_0_20px_rgba(0,163,255,0.4)]"
+                    className="flex items-center gap-2 bg-[#eaff20] text-black font-black px-8 py-4 rounded-xl hover:scale-105 transition-all shadow-[0_0_20px_rgba(234,255,32,0.3)]"
                 >
                     <Plus size={20} />
                     NOVA REDAÇÃO
@@ -28,99 +33,96 @@ export default async function RedacaoPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Writing History */}
-                <div className="lg:col-span-2 space-y-4">
-                    <h2 className="text-xl font-bold text-white flex items-center gap-2 mb-4">
-                        <FileText size={20} className="text-neon-blue" />
-                        Seu Histórico de Treino
+                <div className="lg:col-span-2 space-y-6">
+                    <h2 className="text-xl font-black uppercase tracking-widest flex items-center gap-3">
+                        <FileText size={24} className="text-[#eaff20]" />
+                        Seu Histórico de Combate
                     </h2>
 
                     {redacoes.length === 0 ? (
-                        <div className="glass-panel p-12 text-center border-dashed border-2 border-white/10 rounded-2xl">
-                            <PenTool size={48} className="mx-auto text-white/20 mb-4" />
-                            <p className="text-secondary font-medium">Você ainda não escreveu nenhuma redação.</p>
-                            <p className="text-xs text-white/40 mt-1">A redação é o que diferencia o aprovado do quase-aprovado.</p>
+                        <div className="bg-[#0a0a0a] border-2 border-dashed border-white/10 p-20 text-center rounded-3xl">
+                            <PenTool size={64} className="mx-auto text-white/5 mb-6" />
+                            <p className="text-[#a1a1aa] font-black uppercase tracking-widest">Nenhuma redação registrada.</p>
+                            <p className="text-[10px] text-secondary mt-2 uppercase">O treino é o que separa o amador do profissional.</p>
                         </div>
                     ) : (
-                        redacoes.map((red) => (
-                            <Link 
-                                key={red.id} 
-                                href={`/redacao/${red.id}`}
-                                className="glass-panel p-5 block group hover:border-neon-blue/50 transition-all border border-white/5"
-                            >
-                                <div className="flex justify-between items-center">
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-3 mb-1">
-                                            <span className={`text-[10px] font-black px-2 py-0.5 rounded uppercase ${
-                                                red.status === 'Corrigida' ? 'bg-green-500 text-black' : 'bg-neon-yellow text-black'
-                                            }`}>
-                                                {red.status}
-                                            </span>
-                                            <span className="text-xs text-secondary font-mono">
-                                                {new Date(red.createdAt).toLocaleDateString('pt-BR')}
-                                            </span>
-                                        </div>
-                                        <h3 className="text-lg font-bold text-white group-hover:text-neon-blue transition-colors line-clamp-1">
-                                            {red.tema}
-                                        </h3>
-                                    </div>
-                                    <div className="flex items-center gap-4">
-                                        {red.nota !== null && (
-                                            <div className="text-right">
-                                                <div className="text-[10px] font-bold text-secondary uppercase">Nota</div>
-                                                <div className="text-2xl font-black text-neon-blue">{red.nota}</div>
+                        <div className="space-y-4">
+                            {redacoes.map((red) => (
+                                <Link 
+                                    key={red.id} 
+                                    href={`/redacao/${red.id}`}
+                                    className="bg-[#0a0a0a] border border-white/10 p-6 block group hover:border-[#eaff20]/50 transition-all rounded-2xl"
+                                >
+                                    <div className="flex justify-between items-center">
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-3 mb-2">
+                                                <span className={`text-[10px] font-black px-2 py-0.5 rounded uppercase ${
+                                                    red.status === 'Corrigida' ? 'bg-green-500 text-black' : 'bg-[#eaff20] text-black'
+                                                }`}>
+                                                    {red.status}
+                                                </span>
+                                                <span className="text-[10px] text-[#a1a1aa] font-black uppercase">
+                                                    {new Date(red.createdAt).toLocaleDateString('pt-BR')}
+                                                </span>
                                             </div>
-                                        )}
-                                        <ChevronRight size={24} className="text-white/20 group-hover:text-neon-blue" />
+                                            <h3 className="text-lg font-black text-white group-hover:text-[#eaff20] transition-colors line-clamp-1">
+                                                {red.tema}
+                                            </h3>
+                                        </div>
+                                        <div className="flex items-center gap-6">
+                                            {red.nota !== null && (
+                                                <div className="text-right">
+                                                    <div className="text-[10px] font-black text-[#a1a1aa] uppercase">Nota Final</div>
+                                                    <div className="text-3xl font-black text-[#eaff20]">{red.nota}</div>
+                                                </div>
+                                            )}
+                                            <ChevronRight size={24} className="text-white/10 group-hover:text-[#eaff20]" />
+                                        </div>
                                     </div>
-                                </div>
-                            </Link>
-                        ))
+                                </Link>
+                            ))}
+                        </div>
                     )}
                 </div>
 
                 {/* Cesgranrio Guide */}
                 <div className="space-y-6">
-                    <div className="glass-panel p-6 border-neon-yellow/30 bg-neon-yellow/5">
-                        <h2 className="text-xl font-bold text-neon-yellow flex items-center gap-2 mb-4">
-                            <Award size={20} />
+                    <div className="bg-[#0a0a0a] border border-[#eaff20]/30 p-8 rounded-3xl relative overflow-hidden">
+                        <div className="absolute -top-10 -right-10 text-[#eaff20]/5">
+                            <Award size={150} />
+                        </div>
+                        <h2 className="text-xl font-black text-[#eaff20] flex items-center gap-3 mb-8 relative z-10 uppercase tracking-tighter">
+                            <Award size={24} />
                             Padrão Cesgranrio
                         </h2>
                         
-                        <div className="space-y-4">
-                            <div className="guide-item">
-                                <h4 className="text-sm font-bold text-white uppercase text-[11px] mb-1">1. Dissertativo-Argumentativo</h4>
-                                <p className="text-xs text-secondary leading-relaxed">
-                                    Defenda um ponto de vista claro com argumentos sólidos. Nada de textos narrativos ou apenas expositivos.
-                                </p>
-                            </div>
-                            <div className="guide-item">
-                                <h4 className="text-sm font-bold text-white uppercase text-[11px] mb-1">2. Objetividade</h4>
-                                <p className="text-xs text-secondary leading-relaxed">
-                                    A banca é direta. Foque no tema central, geralmente sobre atualidades, tecnologia ou sociedade.
-                                </p>
-                            </div>
-                            <div className="guide-item">
-                                <h4 className="text-sm font-bold text-white uppercase text-[11px] mb-1">3. Conectivos</h4>
-                                <p className="text-xs text-secondary leading-relaxed">
-                                    Use "Diante desse cenário", "Além disso", "Portanto". A coesão vale muitos pontos.
-                                </p>
-                            </div>
-                            <div className="guide-item">
-                                <h4 className="text-sm font-bold text-white uppercase text-[11px] mb-1">4. Tamanho Ideal</h4>
-                                <p className="text-xs text-secondary leading-relaxed">
-                                    Mire entre 25 e 30 linhas. Menos de 20 linhas é penalizado severamente.
-                                </p>
-                            </div>
+                        <div className="space-y-6 relative z-10">
+                            <GuideItem 
+                                title="1. Dissertativo-Argumentativo" 
+                                text="Defenda um ponto de vista claro com argumentos sólidos. Nada de textos narrativos."
+                            />
+                            <GuideItem 
+                                title="2. Objetividade Real" 
+                                text="A banca é direta. Foque no tema central, geralmente sobre atualidades ou tecnologia."
+                            />
+                            <GuideItem 
+                                title="3. Coesão Supreme" 
+                                text="Use conectivos fortes como 'Diante desse cenário', 'Além disso', 'Portanto'."
+                            />
+                            <GuideItem 
+                                title="4. Densidade de Conteúdo" 
+                                text="Mire entre 25 e 30 linhas. Menos de 20 linhas é falha crítica."
+                            />
                         </div>
                     </div>
 
-                    <div className="glass-panel p-6 bg-white/5 border border-white/10">
-                        <h3 className="text-sm font-bold text-white flex items-center gap-2 mb-3">
-                            <Info size={16} className="text-neon-blue" />
-                            Dica Supreme
+                    <div className="bg-[#eaff20]/5 border border-[#eaff20]/10 p-6 rounded-2xl">
+                        <h3 className="text-xs font-black text-[#eaff20] flex items-center gap-2 mb-3 uppercase">
+                            <Info size={16} />
+                            Dica de Campo
                         </h3>
-                        <p className="text-xs text-secondary italic leading-relaxed">
-                            "A Cesgranrio valoriza a clareza. Não tente usar palavras complexas demais se não dominar o sentido. O simples bem escrito aprova mais que o rebuscado confuso."
+                        <p className="text-xs text-[#a1a1aa] italic leading-relaxed font-medium">
+                            "A Cesgranrio valoriza a clareza técnica. Não use palavras complexas se não dominar o sentido. O simples bem executado garante a vaga."
                         </p>
                     </div>
                 </div>
@@ -128,3 +130,13 @@ export default async function RedacaoPage() {
         </div>
     );
 }
+
+function GuideItem({ title, text }: { title: string, text: string }) {
+    return (
+        <div className="space-y-1">
+            <h4 className="text-[11px] font-black text-white uppercase tracking-wider">{title}</h4>
+            <p className="text-xs text-[#a1a1aa] leading-relaxed">{text}</p>
+        </div>
+    );
+}
+

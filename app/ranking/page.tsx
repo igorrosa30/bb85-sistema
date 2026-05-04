@@ -6,26 +6,27 @@ import {
     TrendingUp,
     MapPin,
     Medal,
-    Activity
+    Activity,
+    Target
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
-
 export default async function RankingPage() {
-    // Logic to simulate Microrregião 158 ranking
-    // Fetch user's best score from Simulados or calculate from answers
-    const bestSimulado = await prisma.simulado.findFirst({
-        orderBy: { percentual_geral: 'desc' }
-    });
+    let userScore = 0;
+    try {
+        const bestSimulado = await prisma.simulado.findFirst({
+            orderBy: { percentual_geral: 'desc' }
+        });
+        userScore = bestSimulado?.percentual_geral || 0;
+    } catch (e) {
+        console.error("Ranking Page Error:", e);
+    }
 
-    const userScore = bestSimulado?.percentual_geral || 0;
-
-    // Simulated competition for Microrregião 158 - TI
     const totalParticipants = 1450;
-    // Heuristic: if user has 0%, they are last. If 90%, they are top.
     let position = Math.floor(totalParticipants - (userScore / 100) * totalParticipants) + 1;
     if (position < 1) position = 1;
+    if (userScore === 0) position = totalParticipants;
 
     const top10 = [
         { pos: 1, name: 'A. F. M.', score: 92.0, status: 'Elite' },
@@ -36,60 +37,76 @@ export default async function RankingPage() {
     ];
 
     return (
-        <div className="ranking-container">
-            <header className="page-header">
-                <h1 className="text-neon-blue">Ranking TI</h1>
-                <p className="subtitle">Simulador de Classificação - Microrregião 158</p>
+        <div className="min-h-screen bg-[#050505] p-6 md:p-10 space-y-10 text-white">
+            <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                    <h1 className="text-4xl font-black tracking-tighter uppercase">Ranking <span className="text-[#00a3ff]">TI</span></h1>
+                    <p className="text-[#a1a1aa] font-medium mt-1">Simulador de Classificação - Microrregião 158</p>
+                </div>
+                
+                <div className="flex items-center gap-3 bg-[#00a3ff]/10 border border-[#00a3ff]/20 px-6 py-3 rounded-2xl">
+                    <Activity size={20} className="text-[#00a3ff]" />
+                    <span className="text-xs font-black uppercase tracking-widest text-[#00a3ff]">Tempo Real</span>
+                </div>
             </header>
 
-            <div className="ranking-grid">
-                <div className="card-highlight glass-panel p-6 text-center border-neon-yellow">
-                    <Medal className="text-neon-yellow mb-2" size={48} style={{ margin: '0 auto' }} />
-                    <h6 className="stat-label">Sua Melhor Posição</h6>
-                    <h1 className="display-value text-neon-blue">#{position}</h1>
-                    <p className="text-secondary">Entre {totalParticipants} candidatos ativos</p>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* User Status Card */}
+                <div className="bg-[#0a0a0a] border border-[#eaff20]/20 p-10 rounded-3xl text-center relative overflow-hidden group">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-[#eaff20]/20" />
+                    <Medal className="mx-auto text-[#eaff20] mb-6 group-hover:scale-110 transition-transform" size={80} />
+                    
+                    <p className="text-xs font-black text-[#a1a1aa] uppercase tracking-[0.3em] mb-2">Sua Melhor Posição</p>
+                    <h1 className="text-7xl font-black text-white mb-4">#{position}</h1>
+                    <p className="text-[10px] font-bold text-[#a1a1aa] uppercase">Entre {totalParticipants} candidatos ativos</p>
 
-                    <div className="divider" />
+                    <div className="my-8 border-t border-white/5" />
 
-                    <div className="ranking-kpis">
-                        <div className="kpi-item">
-                            <small className="label">Sua Melhor Nota</small>
-                            <span className="h3">{userScore.toFixed(1)}%</span>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="text-center">
+                            <p className="text-[10px] font-black text-[#a1a1aa] uppercase mb-1">Sua Nota</p>
+                            <p className="text-2xl font-black text-[#00a3ff]">{userScore.toFixed(1)}%</p>
                         </div>
-                        <div className="kpi-item">
-                            <small className="label">Corte Estimado (Top 5%)</small>
-                            <span className="h3 text-neon-yellow">86.5%</span>
+                        <div className="text-center border-l border-white/5">
+                            <p className="text-[10px] font-black text-[#a1a1aa] uppercase mb-1">Corte Top 5%</p>
+                            <p className="text-2xl font-black text-[#eaff20]">86.5%</p>
                         </div>
                     </div>
                 </div>
 
-                <div className="card-table glass-panel p-6">
-                    <div className="flex-between mb-4">
-                        <h3>Top 10 - Simulado TI</h3>
-                        <div className="badge-pill score-badge small">
-                            <Activity size={14} className="me-1" />
-                            Tempo Real
-                        </div>
-                    </div>
+                {/* Ranking Table */}
+                <div className="lg:col-span-2 bg-[#0a0a0a] border border-white/10 rounded-3xl p-8 relative overflow-hidden">
+                    <h3 className="text-xl font-black uppercase tracking-widest mb-8 flex items-center gap-3">
+                        <Trophy size={24} className="text-[#00a3ff]" />
+                        Elite da Microrregião
+                    </h3>
 
-                    <div className="table-wrapper">
-                        <table className="modern-table">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
                             <thead>
-                                <tr className="bg-glass-dark">
-                                    <th># Pos</th>
-                                    <th>Candidato</th>
-                                    <th>Nota Geral</th>
-                                    <th>Status</th>
+                                <tr className="border-b border-white/5 text-[10px] font-black uppercase tracking-widest text-[#a1a1aa]">
+                                    <th className="pb-4 px-4">Posição</th>
+                                    <th className="pb-4 px-4">Candidato</th>
+                                    <th className="pb-4 px-4">Nota Geral</th>
+                                    <th className="pb-4 px-4">Status</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody className="divide-y divide-white/5">
                                 {top10.map((player) => (
-                                    <tr key={player.pos}>
-                                        <td><span className={`pos-badge ${player.pos <= 3 ? 'gold' : ''}`}>{player.pos}</span></td>
-                                        <td>{player.name}</td>
-                                        <td><span className="text-primary font-bold">{player.score}%</span></td>
-                                        <td>
-                                            <span className={`badge-pill ${player.status === 'Elite' ? 'bg-success-glass' : 'bg-info-glass'}`}>
+                                    <tr key={player.pos} className="group hover:bg-white/[0.02] transition-colors">
+                                        <td className="py-4 px-4">
+                                            <span className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs ${
+                                                player.pos <= 3 ? 'bg-[#eaff20] text-black shadow-[0_0_15px_rgba(234,255,32,0.3)]' : 'bg-white/5 text-white'
+                                            }`}>
+                                                {player.pos}
+                                            </span>
+                                        </td>
+                                        <td className="py-4 px-4 font-black text-sm">{player.name}</td>
+                                        <td className="py-4 px-4 font-black text-[#00a3ff]">{player.score.toFixed(1)}%</td>
+                                        <td className="py-4 px-4">
+                                            <span className={`text-[10px] font-black px-2 py-0.5 rounded uppercase ${
+                                                player.status === 'Elite' ? 'bg-[#00a3ff] text-black' : 'bg-white/10 text-white'
+                                            }`}>
                                                 {player.status}
                                             </span>
                                         </td>
@@ -98,12 +115,20 @@ export default async function RankingPage() {
 
                                 {position > 5 && (
                                     <>
-                                        <tr className="dots-row"><td colSpan={4}>...</td></tr>
-                                        <tr className="user-row glass-panel-active">
-                                            <td><span className="pos-badge blue">{position}</span></td>
-                                            <td><strong>VOCÊ</strong></td>
-                                            <td><strong className="text-neon-blue">{userScore.toFixed(1)}%</strong></td>
-                                            <td><span className="badge-pill bg-neon-blue">Sua Nota</span></td>
+                                        <tr><td colSpan={4} className="py-2 px-4 text-center text-white/20">•••</td></tr>
+                                        <tr className="bg-[#00a3ff]/5 border-y border-[#00a3ff]/20">
+                                            <td className="py-6 px-4">
+                                                <span className="w-8 h-8 rounded-lg bg-[#00a3ff] text-black flex items-center justify-center font-black text-xs">
+                                                    {position}
+                                                </span>
+                                            </td>
+                                            <td className="py-6 px-4 font-black text-sm text-[#00a3ff]">VOCÊ (COMBATENTE)</td>
+                                            <td className="py-6 px-4 font-black text-[#00a3ff]">{userScore.toFixed(1)}%</td>
+                                            <td className="py-6 px-4">
+                                                <span className="text-[10px] font-black px-2 py-0.5 rounded uppercase bg-[#00a3ff] text-black">
+                                                    Sua Posição
+                                                </span>
+                                            </td>
                                         </tr>
                                     </>
                                 )}
@@ -113,12 +138,13 @@ export default async function RankingPage() {
                 </div>
             </div>
 
-            <div className="alert-box glass-panel mt-4 p-4 border-l-info">
-                <Users size={20} className="text-neon-blue" />
-                <p className="small text-secondary mb-0">
-                    Este ranking é um simulado baseado no desempenho histórico da Microrregião 158 (TI) e dados de outros usuários. Use como referência para seu planejamento de estudos.
+            <div className="bg-white/[0.02] border border-white/5 p-6 rounded-2xl flex items-start gap-4">
+                <Users size={24} className="text-[#00a3ff] shrink-0" />
+                <p className="text-xs text-[#a1a1aa] font-medium leading-relaxed italic">
+                    "Este ranking simula a concorrência real baseada no desempenho médio histórico da Microrregião 158. Mantenha sua meta acima de 86% para garantir a vaga direta sem depender de cadastros de reserva."
                 </p>
             </div>
         </div>
     );
 }
+
