@@ -17,8 +17,9 @@ export default async function SimuladosPage() {
         provas = await prisma.prova.findMany({
             orderBy: { ano: 'desc' }
         });
+        console.log(`Página Simulados: ${provas.length} provas encontradas.`);
     } catch (error) {
-        console.error("Erro ao carregar provas:", error);
+        console.error("ERRO CRÍTICO NO BANCO:", error);
     }
 
     return (
