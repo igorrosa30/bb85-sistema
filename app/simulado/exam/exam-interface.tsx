@@ -11,6 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { toast } from "sonner"
 import { submitExam, getQuestionHistory } from "@/app/actions"
+import { Clock, ChevronLeft, ChevronRight, Map, Zap, Check, Flame, AlertTriangle, Youtube } from "lucide-react"
 
 interface ExamInterfaceProps {
     questions: any[]
@@ -60,8 +61,59 @@ export default function ExamInterface({ questions, config }: ExamInterfaceProps)
 
     // Timer & Init Logic (keep as is)
     useEffect(() => {
-        // ... (existing timer logic)
-    }, [questions])
+        // 1. Carregar Configuração
+        const savedConfig = sessionStorage.getItem("simulado-config");
+        const parsedConfig = savedConfig ? JSON.parse(savedConfig) : { tipo: 'completo', quantidade: 70 };
+        
+        // 2. Filtrar e Preparar Questões
+        let filtered = [...questions];
+        
+        if (parsedConfig.tipo === 'blitz') {
+            // Blitz: TI e Português
+            filtered = questions.filter(q => 
+                q.materia.toLowerCase().includes('tecnologia') || 
+                q.materia.toLowerCase().includes('informática') ||
+                q.materia.toLowerCase().includes('portuguesa')
+            );
+        } else if (parsedConfig.tipo === 'materia' && parsedConfig.materias) {
+            filtered = questions.filter(q => parsedConfig.materias.includes(q.materia));
+        }
+
+        // Embaralhar e Limitar Quantidade
+        const shuffled = filtered.sort(() => Math.random() - 0.5);
+        const selected = shuffled.slice(0, parsedConfig.quantidade || 70);
+
+        if (selected.length > 0) {
+            setLocalQuestions(selected);
+            setStartTime(Date.now());
+            
+            // Definir tempo (1.5h para Blitz, 5h para Completo)
+            const hours = parsedConfig.tipo === 'blitz' ? 1.5 : 5;
+            setTimeLeft(Math.floor(hours * 3600));
+        } else {
+            // Fallback se não encontrar questões filtradas
+            setLocalQuestions(questions.slice(0, 70));
+            setTimeLeft(5 * 3600);
+        }
+    }, [questions]);
+
+    // Timer logic
+    useEffect(() => {
+        if (timeLeft <= 0 || isSubmitting) return;
+        
+        const timer = setInterval(() => {
+            setTimeLeft(prev => {
+                if (prev <= 1) {
+                    clearInterval(timer);
+                    handleFinish(true);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [timeLeft, isSubmitting]);
 
     const handleAnswer = (value: string) => {
         const q = localQuestions[currentQuestionIndex];
